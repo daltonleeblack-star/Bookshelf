@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Reading Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">◍</span>
+    <div>
+      <h1 id="room-title">The Reading Room</h1>
+      <p class="subtitle" id="profile-line">Loading shelf…</p>
+    </div>
+  </div>
+  <dl class="stats" id="stats"></dl>
+</header>
+
+<p class="notice" id="sample-notice" hidden>
+  <strong>Sample data.</strong> These aren't your books yet — run
+  <code>node scripts/import-goodreads.mjs</code> to load your real Goodreads shelves.
+</p>
+
+<main class="room" id="room">
+  <!-- Painted room: wall, lamp glow, floor, rug -->
+  <div class="wall"></div>
+  <div class="lamp-glow" aria-hidden="true"></div>
+  <div class="floor"></div>
+  <div class="rug" aria-hidden="true"></div>
+
+  <div class="frame" aria-hidden="true"><span></span></div>
+
+  <!-- The bookcase of past reads -->
+  <section class="bookcase" id="bookcase" aria-labelledby="bookcase-label">
+    <h2 class="bookcase-label" id="bookcase-label">Read <span id="shelf-range"></span></h2>
+    <div class="shelves" id="shelves"></div>
+    <p class="bookcase-hint">Click a spine</p>
+  </section>
+
+  <!-- Armchair -->
+  <div class="chair" aria-hidden="true">
+    <svg viewBox="0 0 420 380" role="presentation">
+      <defs>
+        <linearGradient id="fabric" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#b4634a" /><stop offset="1" stop-color="#7a3826" />
+        </linearGradient>
+        <linearGradient id="cushion" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#cd7a5b" /><stop offset="1" stop-color="#9b4a31" />
+        </linearGradient>
+        <linearGradient id="arm" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#a2543c" /><stop offset=".55" stop-color="#bd6a4e" /><stop offset="1" stop-color="#7c3a27" />
+        </linearGradient>
+        <linearGradient id="throw" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#6f978d" /><stop offset="1" stop-color="#3f635d" />
+        </linearGradient>
+      </defs>
+
+      <!-- shadow on the rug -->
+      <ellipse cx="212" cy="352" rx="150" ry="17" fill="#000" opacity=".38" />
+
+      <!-- legs -->
+      <path d="M96 316 L112 316 L108 356 L98 356 Z" fill="#4a2c1b" />
+      <path d="M310 316 L326 316 L324 356 L314 356 Z" fill="#3d2415" />
+
+      <!-- wingback -->
+      <path d="M72 268 C58 176 62 100 94 74 C124 50 168 42 210 42 C252 42 296 50 326 74
+               C358 100 362 176 348 268 Z" fill="url(#fabric)" />
+      <!-- inner back cushion -->
+      <path d="M106 256 C96 176 100 122 126 102 C150 84 184 78 210 78 C236 78 270 84 294 102
+               C320 122 324 176 314 256 Z" fill="url(#cushion)" />
+      <!-- seams + buttons -->
+      <g stroke="#00000026" stroke-width="2" fill="none">
+        <path d="M158 92 C150 150 150 200 154 254" />
+        <path d="M262 92 C270 150 270 200 266 254" />
+      </g>
+      <g fill="#00000024">
+        <ellipse cx="180" cy="140" rx="4.5" ry="5.5" /><ellipse cx="240" cy="140" rx="4.5" ry="5.5" />
+        <ellipse cx="210" cy="188" rx="4.5" ry="5.5" />
+      </g>
+      <!-- wing shading -->
+      <path d="M72 268 C58 176 62 100 94 74 L106 92 C86 122 84 190 96 268 Z" fill="#00000030" />
+      <path d="M348 268 C362 176 358 100 326 74 L314 92 C334 122 336 190 324 268 Z" fill="#00000030" />
+
+      <!-- rolled arms -->
+      <path d="M46 206 C22 206 12 226 14 254 L20 306 C21 320 33 328 50 328 L104 328
+               C118 328 124 318 124 306 L124 232 C124 214 108 206 88 206 Z" fill="url(#arm)" />
+      <path d="M46 206 C30 206 22 218 22 232 C22 246 34 256 50 256 C68 256 80 244 80 230
+               C80 216 66 206 46 206 Z" fill="#c9724f" opacity=".85" />
+      <path d="M374 206 C398 206 408 226 406 254 L400 306 C399 320 387 328 370 328 L316 328
+               C302 328 296 318 296 306 L296 232 C296 214 312 206 332 206 Z" fill="url(#arm)" />
+      <path d="M374 206 C390 206 398 218 398 232 C398 246 386 256 370 256 C352 256 340 244 340 230
+               C340 216 354 206 374 206 Z" fill="#a85c40" opacity=".9" />
+
+      <!-- seat cushion -->
+      <path d="M118 250 L302 250 C322 250 332 262 330 282 L326 308 C324 322 310 330 292 330
+               L128 330 C110 330 96 322 94 308 L90 282 C88 262 98 250 118 250 Z" fill="url(#cushion)" />
+      <path d="M120 256 L300 256 C316 256 324 264 322 276 L321 284 L99 284 L98 276
+               C96 264 104 256 120 256 Z" fill="#ffffff1a" />
+      <path d="M96 300 L324 300" stroke="#00000022" stroke-width="3" fill="none" />
+
+      <!-- throw folded over the right arm -->
+      <path d="M300 206 C336 202 372 206 392 218 C400 223 400 233 392 238
+               C370 228 336 224 306 226 C296 226 292 212 300 206 Z" fill="url(#throw)" />
+      <path d="M386 234 C398 246 400 274 392 296 C386 312 376 322 368 324
+               C374 300 376 268 372 244 Z" fill="#3f635d" />
+      <path d="M300 206 C312 210 316 218 314 226 L306 226 C296 226 292 212 300 206 Z" fill="#83a89e" opacity=".7" />
+    </svg>
+  </div>
+
+  <!-- Side table + the stack of current reads -->
+  <section class="side-table" aria-labelledby="stack-label">
+    <div class="lamp" aria-hidden="true">
+      <div class="lamp-shade"></div>
+      <div class="lamp-stem"></div>
+    </div>
+
+    <button class="stack" id="stack" aria-haspopup="dialog" aria-expanded="false">
+      <span class="sr-only" id="stack-label">Currently reading — open the stack</span>
+      <span class="stack-books" id="stack-books"></span>
+      <span class="stack-tag" id="stack-tag">Currently reading</span>
+    </button>
+
+    <div class="mug" aria-hidden="true"><span class="steam"></span><span class="steam s2"></span></div>
+
+    <div class="table-top" aria-hidden="true"></div>
+    <div class="table-leg" aria-hidden="true"></div>
+    <div class="table-foot" aria-hidden="true"></div>
+  </section>
+</main>
+
+<!-- Currently-reading drawer -->
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" hidden>
+  <div class="drawer-head">
+    <h2 id="drawer-title">Currently reading</h2>
+    <button class="close" id="drawer-close" aria-label="Close">×</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</aside>
+
+<!-- Spine detail card -->
+<div class="spine-card" id="spine-card" role="dialog" aria-live="polite" hidden></div>
+
+<footer class="footer">
+  <span id="synced"></span>
+  <a id="profile-link" href="#" target="_blank" rel="noopener">Goodreads profile ↗</a>
+</footer>
+
+<script src="data/books.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
