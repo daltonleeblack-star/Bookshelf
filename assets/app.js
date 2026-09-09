@@ -407,15 +407,7 @@
       frame.title = pick.title + (pick.author ? ' — ' + pick.author : '');
       frame.setAttribute('aria-label', pick.title + (pick.author ? ' by ' + pick.author : ''));
 
-      if (pick.cover) {
-        var img = document.createElement('img');
-        img.src = pick.cover;
-        img.alt = 'Cover of ' + pick.title;
-        img.onerror = function () { img.replaceWith(platePlate(pick)); };
-        frame.appendChild(img);
-      } else {
-        frame.appendChild(platePlate(pick));
-      }
+      frame.appendChild(coverImage(pick));
 
       frame.addEventListener('click', function (e) {
         e.stopPropagation();
@@ -423,6 +415,25 @@
       });
       framesEl.appendChild(frame);
     });
+  }
+
+  // Try each source in turn — a local file first, a remote cover as backup — and print
+  // the title if none of them load. Dropping a file into assets/wall/ is enough to
+  // claim a frame; no code change needed.
+  function coverImage(pick) {
+    var sources = (pick.covers || [pick.cover]).filter(Boolean);
+    if (!sources.length) return platePlate(pick);
+
+    var img = document.createElement('img');
+    var at = 0;
+    img.alt = 'Cover of ' + pick.title;
+    img.onerror = function () {
+      at++;
+      if (at < sources.length) img.src = sources[at];
+      else img.replaceWith(platePlate(pick));
+    };
+    img.src = sources[0];
+    return img;
   }
 
   // No image? Print the title instead, so a missing file reads as a plate, not a hole.

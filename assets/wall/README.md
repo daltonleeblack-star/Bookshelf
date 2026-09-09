@@ -1,7 +1,14 @@
-Drop cover images here and point `data/wall-of-fame.js` at them, e.g.
-`"cover": "assets/wall/demon-copperhead.jpg"`.
+Cover images for the Wall of Fame.
 
-A local file always wins over a remote URL: it's the edition *you* read, it loads
-instantly, and it survives the cover host changing its mind. Any frame whose image
-fails to load falls back to a printed title plate, so a missing file never leaves a hole
-in the wall.
+Drop a file in here named after the book and it claims that frame — no code change
+needed. `data/wall-of-fame.js` tries these names in order and falls back to a remote
+cover, then to a printed title plate:
+
+    demon-copperhead.jpg
+    pachinko.jpg
+    the-great-believers.jpg
+    the-kite-runner.jpg
+    a-little-life.jpg
+
+`.png` works too. A local file is worth adding: it's the edition you actually read, it
+loads instantly, and it doesn't break when a cover host changes its mind.
