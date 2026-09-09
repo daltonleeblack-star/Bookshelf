@@ -56,14 +56,15 @@ h1{
 
 /* ---------- the room ---------- */
 .room{
-  position:relative;width:100%;max-width:1200px;aspect-ratio:12/7;min-height:430px;
+  position:relative;width:100%;max-width:1200px;aspect-ratio:4/3;min-height:520px;
   container-type:size;
   --unit:1cqw;              /* spine geometry scales off this */
+  --max-shelves:6;          /* rows the case shows before it scrolls */
   border-radius:22px;overflow:hidden;
   box-shadow:0 40px 90px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.06);
 }
 .wall{
-  position:absolute;inset:0 0 30% 0;
+  position:absolute;inset:0 0 26% 0;
   background:
     linear-gradient(180deg,#2c2016,#42301f 62%,#57402c);
 }
@@ -72,14 +73,14 @@ h1{
   background:repeating-linear-gradient(90deg,transparent 0 26px,rgba(255,255,255,.07) 26px 28px);
 }
 .floor{
-  position:absolute;inset:70% 0 0 0;
+  position:absolute;inset:74% 0 0 0;
   background:
     linear-gradient(180deg,#4d3220,#2c1c10 70%),
     repeating-linear-gradient(96deg,rgba(0,0,0,.22) 0 3px,transparent 3px 44px);
   background-blend-mode:overlay,normal;
 }
 .rug{
-  position:absolute;left:14%;bottom:2%;width:74%;height:26%;
+  position:absolute;left:40%;bottom:2%;width:58%;height:20%;
   background:radial-gradient(closest-side,#4a6a63,#2f4a45 62%,#26403c 100%);
   border-radius:50%;opacity:.85;
   box-shadow:inset 0 0 0 8cqw rgba(0,0,0,.06);
@@ -96,7 +97,7 @@ h1{
 
 /* framed print over the chair */
 .frame{
-  position:absolute;left:46.5%;top:16%;width:13%;aspect-ratio:4/5;
+  position:absolute;left:70%;top:12%;width:12%;aspect-ratio:4/5;
   background:linear-gradient(180deg,var(--wood-light),var(--wood-dark));
   border-radius:2px;padding:.7cqw;
   box-shadow:0 1cqw 2cqw rgba(0,0,0,.45);
@@ -115,7 +116,7 @@ h1{
 
 /* ---------- bookcase ---------- */
 .bookcase{
-  position:absolute;left:3.5%;bottom:13%;width:36%;
+  position:absolute;left:3%;bottom:9%;width:45%;
   background:linear-gradient(180deg,var(--wood-light),var(--wood) 18%,var(--wood-dark));
   border-radius:5px 5px 2px 2px;
   padding:3.4cqw 1.7cqw 3cqw;
@@ -140,9 +141,17 @@ h1{
   position:relative;z-index:1;margin:1.1cqw 0 0;text-align:center;font-size:1.15cqw;color:#f3dcb8;opacity:.5;letter-spacing:.1em;
 }
 .shelves{position:relative;z-index:1;display:flex;flex-direction:column;gap:1.1cqw}
+.shelves.is-scrollable{
+  overflow-y:auto;overscroll-behavior:contain;
+  scrollbar-width:thin;scrollbar-color:rgba(240,214,174,.35) transparent;
+  -webkit-mask-image:linear-gradient(180deg,#000 92%,transparent);
+          mask-image:linear-gradient(180deg,#000 92%,transparent);
+}
+.shelves.is-scrollable::-webkit-scrollbar{width:6px}
+.shelves.is-scrollable::-webkit-scrollbar-thumb{background:rgba(240,214,174,.3);border-radius:6px}
 .shelf{
-  display:flex;align-items:flex-end;gap:.28cqw;
-  min-height:10.6cqw;padding:0 .7cqw .5cqw;
+  display:flex;align-items:flex-end;gap:calc(var(--unit) * .28);
+  min-height:4cqw;padding:0 .7cqw .5cqw;
   background:linear-gradient(180deg,rgba(0,0,0,.42),rgba(0,0,0,.06) 30%,transparent);
   border-bottom:.9cqw solid var(--wood-light);
   border-radius:2px;
@@ -177,19 +186,21 @@ h1{
   content:"";position:absolute;left:0;right:0;top:1.1cqw;height:.16cqw;
   background:rgba(255,255,255,.4);box-shadow:0 .5cqw 0 rgba(255,255,255,.28);
 }
-.spine:hover,.spine:focus-visible{transform:translateY(-1.5cqw);filter:brightness(1.18);outline:none}
+.spine.is-slim{padding-block:0}
+.spine.is-slim::after{top:.9cqw}
+.spine:hover,.spine:focus-visible{transform:translateY(-1.2cqw);filter:brightness(1.25);outline:none;z-index:2}
 .spine.is-open{transform:translateY(-2.2cqw);filter:brightness(1.25)}
 .spine .spine-stars{font-size:.85cqw;opacity:.85;margin-top:.4cqw}
 
 /* ---------- chair ---------- */
-.chair{position:absolute;left:39%;bottom:5%;width:28%}
+.chair{position:absolute;left:50%;bottom:5%;width:25%}
 .chair svg{width:100%;height:auto;filter:drop-shadow(0 16px 26px rgba(0,0,0,.5))}
 
 /* ---------- side table ---------- */
-.side-table{position:absolute;right:7%;bottom:6%;width:20%;height:56%}
+.side-table{position:absolute;right:4%;bottom:6%;width:19%;height:46%}
 .table-top{
   position:absolute;left:0;right:0;bottom:34%;height:2.4cqw;
-  background:linear-gradient(180deg,var(--wood-light),var(--wood));
+  background:linear-gradient(180deg,#9a6b40,var(--wood));
   border-radius:1.4cqw;box-shadow:0 .8cqw 1.6cqw rgba(0,0,0,.45);
 }
 .table-leg{
@@ -204,50 +215,67 @@ h1{
 }
 
 /* lamp */
-.lamp{position:absolute;right:1%;bottom:40.5%;width:34%}
+.lamp{position:absolute;right:-2%;bottom:36.6%;width:32%}
 .lamp-shade{
-  height:5.4cqw;
-  background:linear-gradient(180deg,#f6c27a,#d98f43);
-  clip-path:polygon(20% 0,80% 0,100% 100%,0 100%);
-  border-radius:.5cqw;
-  box-shadow:0 0 5cqw rgba(255,190,110,.65);
+  height:4.6cqw;
+  background:linear-gradient(180deg,#f8c983,#d98f43);
+  clip-path:polygon(18% 0,82% 0,100% 100%,0 100%);
+  border-radius:.4cqw;
+  box-shadow:0 0 5cqw rgba(255,190,110,.6);
 }
-.lamp-stem{width:.7cqw;height:4.6cqw;margin:0 auto;background:linear-gradient(90deg,#6b5334,#a8834f,#6b5334)}
+.lamp-stem{width:.6cqw;height:4cqw;margin:0 auto;background:linear-gradient(90deg,#6b5334,#b08b53,#6b5334)}
+.lamp-base{width:52%;height:.7cqw;margin:0 auto;border-radius:50%;
+  background:linear-gradient(180deg,#b08b53,#6b5334)}
 
-/* the stack */
+/* the stack of current reads */
 .stack{
-  position:absolute;left:-2%;bottom:36%;width:62%;
+  position:absolute;left:8%;bottom:36.6%;width:56%;
   background:none;border:0;padding:0;cursor:pointer;
-  display:flex;flex-direction:column-reverse;align-items:center;gap:.15cqw;
+  display:flex;flex-direction:column;align-items:center;gap:.5cqw;
 }
 .stack-books{display:flex;flex-direction:column-reverse;width:100%;align-items:center}
 .stack .book{
-  width:var(--w,86%);height:1.9cqw;border-radius:.25cqw;
-  background:linear-gradient(180deg,var(--c1),var(--c2));
-  box-shadow:0 .18cqw .4cqw rgba(0,0,0,.45), inset 0 .1cqw 0 rgba(255,255,255,.28);
-  transform:rotate(var(--r,0deg));
-  transition:transform .2s ease;
   position:relative;
+  width:var(--w,86%);height:var(--t,2cqw);border-radius:.2cqw .3cqw .3cqw .2cqw;
+  background:linear-gradient(180deg,var(--c1),var(--c2));
+  box-shadow:0 .2cqw .45cqw rgba(0,0,0,.5), inset 0 .12cqw 0 rgba(255,255,255,.3);
+  transform:rotate(var(--r,0deg));
+  transition:transform .22s ease;
 }
-.stack .book::after{
-  content:"";position:absolute;left:6%;right:6%;top:38%;height:.18cqw;background:rgba(255,255,255,.22);
+.stack .book::before{ /* page block */
+  content:"";position:absolute;left:.25cqw;right:.25cqw;top:32%;bottom:14%;
+  background:linear-gradient(180deg,#f0e3cd,#c9b391);
+  border-radius:.1cqw;box-shadow:inset 0 .1cqw 0 rgba(255,255,255,.6);
 }
-.stack:hover .book,.stack:focus-visible .book{transform:rotate(var(--r,0deg)) translateX(var(--nudge,0));}
+.stack .book::after{ /* board over the pages */
+  content:"";position:absolute;inset:0 0 26% 0;border-radius:.2cqw .3cqw 0 0;
+  background:linear-gradient(180deg,var(--c1),var(--c2));
+}
+.stack .book:last-child .ribbon{
+  position:absolute;right:18%;top:45%;width:.45cqw;height:80%;z-index:2;
+  background:linear-gradient(180deg,#c0453f,#7e2a27);
+  border-radius:0 0 .15cqw .15cqw;
+  clip-path:polygon(0 0,100% 0,100% 88%,50% 100%,0 88%);
+}
+.stack:hover .book:last-child,.stack:focus-visible .book:last-child{
+  transform:rotate(var(--r,0deg)) translate(-4%,-.5cqw);
+}
 .stack:focus-visible{outline:2px solid var(--accent);outline-offset:6px;border-radius:6px}
 .stack-tag{
-  margin-bottom:.7cqw;font-size:1.05cqw;letter-spacing:.1em;text-transform:uppercase;
-  color:#ffdca8;opacity:.7;white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,.7);
+  font-size:1.05cqw;letter-spacing:.1em;text-transform:uppercase;
+  color:#ffdca8;opacity:.72;white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,.8);
 }
 .stack:hover .stack-tag{opacity:1}
 
 /* mug */
-.mug{position:absolute;left:50%;bottom:36.5%;width:7.5%;height:2.2cqw;
-  background:linear-gradient(180deg,#e8ded0,#bda98f);border-radius:.3cqw .3cqw .8cqw .8cqw}
-.mug::after{content:"";position:absolute;right:-28%;top:22%;width:34%;height:52%;
-  border:.4cqw solid #cbb99f;border-left:0;border-radius:0 60% 60% 0}
-.steam{position:absolute;left:34%;top:-2.6cqw;width:.34cqw;height:2.4cqw;border-radius:1cqw;
-  background:linear-gradient(180deg,transparent,rgba(255,255,255,.4));animation:rise 3.4s ease-in-out infinite}
-.steam.s2{left:60%;animation-delay:1.2s}
+.mug{position:absolute;left:70%;bottom:36.6%;width:15%;height:2.4cqw;
+  background:linear-gradient(180deg,#efe6d8,#bda98f);border-radius:.3cqw .3cqw .9cqw .9cqw;
+  box-shadow:0 .2cqw .4cqw rgba(0,0,0,.45)}
+.mug::after{content:"";position:absolute;right:-30%;top:20%;width:34%;height:52%;
+  border:.35cqw solid #d8c6ab;border-left:0;border-radius:0 60% 60% 0}
+.steam{position:absolute;left:30%;top:-2.4cqw;width:.3cqw;height:2.2cqw;border-radius:1cqw;
+  background:linear-gradient(180deg,transparent,rgba(255,255,255,.45));animation:rise 3.4s ease-in-out infinite}
+.steam.s2{left:62%;animation-delay:1.2s}
 @keyframes rise{0%{opacity:0;transform:translateY(4px) scaleY(.6)}40%{opacity:.7}100%{opacity:0;transform:translateY(-8px) scaleY(1.1)}}
 
 /* ---------- drawer (currently reading) ---------- */
@@ -318,14 +346,13 @@ h1{
 
 /* ---------- small screens: stack the scene readably ---------- */
 @media (max-width:760px){
-  .room{aspect-ratio:5/6;--unit:2.3cqw}
-  .bookcase{left:5%;right:5%;width:auto;bottom:42%;padding:6cqw 2cqw 4cqw}
+  .room{aspect-ratio:4/7;--unit:2.3cqw;--max-shelves:6}
+  .bookcase{left:4%;right:4%;width:auto;bottom:26%;padding:6cqw 2cqw 4cqw}
   .bookcase-label{font-size:3.2cqw}.bookcase-hint{font-size:2.5cqw}
   .frame{display:none}
-  .shelf{min-height:24cqw;border-bottom-width:2cqw}
-  .chair{left:4%;width:52%;bottom:3%}
-  .side-table{right:4%;width:36%;height:34%}
-  .stack-tag{font-size:2.6cqw}
-  .stack .book{height:3cqw}
+  .shelf{border-bottom-width:1.4cqw}
+  .chair{left:3%;width:46%;bottom:3%}
+  .side-table{right:3%;width:34%;height:24%}
+  .stack-tag{font-size:2.4cqw}
   .lamp-shade{height:9cqw}
 }

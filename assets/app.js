@@ -23,7 +23,10 @@
     if (book.spineColor) {
       return [book.spineColor, shade(book.spineColor, -0.32)];
     }
-    return PALETTE[hash((book.title || '') + (book.author || '')) % PALETTE.length];
+    var h = hash((book.title || '') + (book.author || ''));
+    var pair = PALETTE[h % PALETTE.length];
+    var jitter = ((h >> 4) % 13 - 6) / 100;   // ±6% so neighbours never read as twins
+    return [shade(pair[0], jitter), shade(pair[1], jitter)];
   }
   function shade(hex, amt) {
     var m = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(hex || '');
@@ -52,6 +55,8 @@
   function stars(rating) {
     var r = Math.round(Number(rating) || 0);
     var s = el('span', 'stars');
+    s.setAttribute('role', 'img');
+    s.setAttribute('aria-label', r + ' out of 5 stars');
     for (var i = 1; i <= 5; i++) {
       var star = el('span', i <= r ? '' : 'off', '★');
       s.appendChild(star);
@@ -122,14 +127,18 @@
   if (!current.length) {
     document.getElementById('stack-tag').textContent = 'Nothing on the table';
   }
+  // Few books on the table means thicker volumes, so one current read still reads as a book.
+  var thickness = Math.max(1.4, Math.min(3.4, 6 / Math.max(1, current.length)));
   current.slice(0, 7).forEach(function (b, i) {
     var c = colorsFor(b);
     var book = el('span', 'book');
     book.style.setProperty('--c1', c[0]);
     book.style.setProperty('--c2', c[1]);
-    book.style.setProperty('--w', (72 + (hash(b.title) % 26)) + '%');
+    book.style.setProperty('--t', thickness.toFixed(2) + 'cqw');
+    book.style.setProperty('--w', (74 + (hash(b.title) % 24)) + '%');
     book.style.setProperty('--r', ((hash(b.title + i) % 5) - 2) + 'deg');
-    book.style.setProperty('--nudge', ((i % 2 ? 1 : -1) * 2) + '%');
+    book.title = b.title + (b.author ? ' — ' + b.author : '');
+    if (i === current.length - 1) book.appendChild(el('span', 'ribbon'));
     stackBooks.appendChild(book);
   });
 
@@ -214,21 +223,23 @@
   /* ---------- shelves ---------- */
 
   var shelvesEl = document.getElementById('shelves');
-  var hintEl = document.querySelector('.bookcase-hint');
-  var HINT = hintEl.textContent;
-
-  var MAX_SHELVES = 4;
+  var roomEl = document.getElementById('room');
   var GAP = 0.28;
+  var SHELF_GAP = 1.1;   // cqw between shelves, matches .shelves gap
 
-  // One "unit" is whatever --unit resolves to at this breakpoint; measuring it
-  // means the case decides how many books fit, at any screen size.
-  function shelfCapacity() {
+  // The case's proportions come from the CSS, so each breakpoint can size itself:
+  // --unit is the spine geometry unit, --max-shelves how many rows fit before it scrolls.
+  function caseMetrics() {
     var probe = el('div');
     probe.style.cssText = 'position:absolute;visibility:hidden;width:var(--unit)';
     shelvesEl.appendChild(probe);
-    var unit = probe.getBoundingClientRect().width || 12;
+    var unitPx = probe.getBoundingClientRect().width || 12;
     probe.remove();
-    return Math.max(12, shelvesEl.clientWidth / unit - 1.6);
+    return {
+      unitPx: unitPx,
+      rowWidth: Math.max(12, shelvesEl.clientWidth / unitPx - 1.6),
+      maxShelves: parseInt(getComputedStyle(roomEl).getPropertyValue('--max-shelves'), 10) || 6
+    };
   }
 
   function baseWidth(b) {
@@ -240,25 +251,17 @@
     return Math.max(6.4, Math.min(9.6, 6.2 + pages / 130));
   }
 
-  // Squeeze the spines until three years of reading fits the case, and drop the
-  // oldest ones only if even the thinnest binding won't fit.
-  function fitToCase(books, rowWidth) {
+  // Thin the spines until the library fits the visible shelves. The first guess ignores
+  // the width wasted at the end of each row, so close the gap by repacking a few times.
+  // Nothing is ever dropped — a case that still overflows scrolls.
+  function fitToCase(books, m) {
     var total = books.reduce(function (sum, b) { return sum + baseWidth(b) + GAP; }, 0);
-    var capacity = rowWidth * MAX_SHELVES;
-    var scale = Math.max(0.42, Math.min(1, capacity / total));
-    var shown = books, dropped = 0;
-    if (total * scale > capacity) {
-      var used = 0;
-      shown = [];
-      for (var i = 0; i < books.length; i++) {
-        var w = baseWidth(books[i]) * scale + GAP;
-        if (used + w > capacity) break;
-        shown.push(books[i]);
-        used += w;
-      }
-      dropped = books.length - shown.length;
+    var scale = Math.min(1, (m.rowWidth * m.maxShelves) / total);
+    for (var i = 0; i < 6 && scale > 0.34; i++) {
+      if (layoutShelves(books, scale, m.rowWidth).length <= m.maxShelves) break;
+      scale *= 0.94;
     }
-    return { books: shown, scale: scale, dropped: dropped };
+    return Math.max(0.34, scale);
   }
 
   // Pack each shelf full before starting the next, the way a real case fills up.
@@ -270,7 +273,7 @@
       rows[rows.length - 1].push(b);
       used += w;
     });
-    return rows.slice(0, MAX_SHELVES);
+    return rows;
   }
 
   function rowWidthOf(row, scale) {
@@ -296,7 +299,7 @@
   function renderShelves() {
     closeSpine();
     shelvesEl.innerHTML = '';
-    hintEl.textContent = HINT;
+    shelvesEl.style.maxHeight = '';
 
     if (!shelfBooks.length) {
       var emptyShelf = el('div', 'shelf');
@@ -306,36 +309,72 @@
       return;
     }
 
-    var rowWidth = shelfCapacity();
-    var fit = fitToCase(shelfBooks, rowWidth);
-    var rows = layoutShelves(fit.books, fit.scale, rowWidth);
+    var m = caseMetrics();
+    var scale = fitToCase(shelfBooks, m);
+    var rows = layoutShelves(shelfBooks, scale, m.rowWidth);
+
+    // Packed tight, the spines get shorter too — otherwise the case towers.
+    var hScale = 0.5 + 0.5 * scale;
+    var slim = scale < 0.62;               // too narrow to letter; hover and click still work
+    var rowHeights = [];
 
     rows.forEach(function (row, rowIndex) {
       var shelf = el('div', 'shelf');
+      var tallest = 0;
+
       row.forEach(function (b) {
         var c = colorsFor(b);
-        var s = el('button', 'spine');
+        var h = baseHeight(b) * hScale;
+        tallest = Math.max(tallest, h);
+
+        var s = el('button', 'spine' + (slim ? ' is-slim' : ''));
         s.type = 'button';
-        s.style.width = unit(baseWidth(b) * fit.scale);
-        s.style.height = unit(baseHeight(b));
-        s.style.fontSize = unit(Math.max(0.62, 1.02 * fit.scale));
+        s.style.width = unit(baseWidth(b) * scale);
+        s.style.height = unit(h);
+        s.style.fontSize = unit(Math.max(0.62, 1.02 * scale));
         s.style.background = 'linear-gradient(90deg,' + c[1] + ',' + c[0] + ' 42%,' + c[1] + ')';
         s.title = b.title + (b.author ? ' — ' + b.author : '');
-        s.appendChild(document.createTextNode(b.title));
+        s.setAttribute('aria-label', b.title + (b.author ? ' by ' + b.author : ''));
+        if (!slim) s.appendChild(document.createTextNode(b.title));
         s.addEventListener('click', function (e) {
           e.stopPropagation();
           openSpine(b, s);
         });
         shelf.appendChild(s);
       });
-      var space = rowWidth - rowWidthOf(row, fit.scale);
+
+      var space = m.rowWidth - rowWidthOf(row, scale);
       if (rowIndex === rows.length - 1 && space > 5) shelf.appendChild(shelfProp(space));
+
+      var shelfHeight = tallest + 1.5;     // spine + the board it stands on
+      shelf.style.minHeight = unit(shelfHeight);
+      rowHeights.push(shelfHeight);
       shelvesEl.appendChild(shelf);
     });
 
-    if (fit.dropped) {
-      hintEl.textContent = HINT + ' \u00b7 ' + fit.dropped + ' older titles didn\u2019t fit the case';
+    // More shelves than the case shows? Cap it on a whole row so the cut looks deliberate.
+    if (rows.length > m.maxShelves) {
+      var visible = rowHeights.slice(0, m.maxShelves).reduce(function (a, b) { return a + b; }, 0);
+      shelvesEl.style.maxHeight = 'calc(var(--unit) * ' + visible.toFixed(3) +
+        ' + ' + ((m.maxShelves - 1) * SHELF_GAP).toFixed(2) + 'cqw)';
+      shelvesEl.classList.add('is-scrollable');
+    } else {
+      shelvesEl.classList.remove('is-scrollable');
     }
+
+    fitCaseToRoom();
+  }
+
+  // Whatever the breakpoint, the case must not grow out through the ceiling. Measure what
+  // actually rendered and give the shelves back exactly the overflow.
+  function fitCaseToRoom() {
+    var caseEl = document.querySelector('.bookcase');
+    var room = roomEl.getBoundingClientRect();
+    var overflow = (room.top + 6) - caseEl.getBoundingClientRect().top;
+    if (overflow <= 0) return;
+    var height = shelvesEl.getBoundingClientRect().height;
+    shelvesEl.style.maxHeight = Math.max(80, height - overflow) + 'px';
+    shelvesEl.classList.add('is-scrollable');
   }
 
   /* ---------- spine detail card ---------- */

@@ -115,23 +115,25 @@
 
   <!-- Side table + the stack of current reads -->
   <section class="side-table" aria-labelledby="stack-label">
-    <div class="lamp" aria-hidden="true">
-      <div class="lamp-shade"></div>
-      <div class="lamp-stem"></div>
-    </div>
-
-    <button class="stack" id="stack" aria-haspopup="dialog" aria-expanded="false">
-      <span class="sr-only" id="stack-label">Currently reading — open the stack</span>
-      <span class="stack-books" id="stack-books"></span>
-      <span class="stack-tag" id="stack-tag">Currently reading</span>
-    </button>
-
-    <div class="mug" aria-hidden="true"><span class="steam"></span><span class="steam s2"></span></div>
-
     <div class="table-top" aria-hidden="true"></div>
     <div class="table-leg" aria-hidden="true"></div>
     <div class="table-foot" aria-hidden="true"></div>
+
+    <div class="lamp" aria-hidden="true">
+      <div class="lamp-shade"></div>
+      <div class="lamp-stem"></div>
+      <div class="lamp-base"></div>
+    </div>
+
+    <div class="mug" aria-hidden="true"><span class="steam"></span><span class="steam s2"></span></div>
+
+    <button class="stack" id="stack" aria-haspopup="dialog" aria-expanded="false">
+      <span class="sr-only" id="stack-label">Currently reading — open the stack</span>
+      <span class="stack-tag" id="stack-tag">Currently reading</span>
+      <span class="stack-books" id="stack-books"></span>
+    </button>
   </section>
+
 </main>
 
 <!-- Currently-reading drawer -->

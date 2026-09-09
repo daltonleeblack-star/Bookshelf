@@ -142,6 +142,7 @@ function merge(book, previous) {
 /* ---------- build ---------- */
 
 const previous = readExisting();
+let userIdFromFeed = null;
 let current = [], read = [];
 
 if (csvPath && csvPath !== true) {
@@ -152,7 +153,7 @@ if (csvPath && csvPath !== true) {
     author: r['Author'],
     pages: num(r['Number of Pages']),
     rating: num(r['My Rating']),
-    dateRead: date(r['Date Read']) || date(r['Date Added']) || null,
+    dateRead: date(r['Date Read']),
     startedAt: date(r['Date Added'])
   });
   const shelfOf = (r) => (r['Exclusive Shelf'] || '').toLowerCase();
@@ -169,7 +170,10 @@ if (rssUser && rssUser !== true || rssFiles.length) {
   if (rssFiles.length) {
     // Saved feeds: a shelf is "currently reading" if nothing in it has a read date.
     for (const f of rssFiles) {
-      const items = parseRss(fs.readFileSync(path.resolve(f), 'utf8'));
+      const xml = fs.readFileSync(path.resolve(f), 'utf8');
+      const owner = /list_rss\/(\d+)/.exec(xml);
+      if (owner && !userIdFromFeed) userIdFromFeed = owner[1];
+      const items = parseRss(xml);
       if (items.some((b) => b.dateRead)) rssRead = rssRead.concat(items);
       else rssCurrent = rssCurrent.concat(items);
     }
@@ -201,7 +205,10 @@ const onShelf = read.filter((b) => b.dateRead && new Date(b.dateRead) >= cutoff)
 const data = {
   profile: {
     name: process.env.READER_NAME || undefined,
-    goodreadsUrl: rssUser && rssUser !== true ? `https://www.goodreads.com/user/show/${rssUser}` : undefined,
+    goodreadsUrl: (() => {
+      const id = (rssUser && rssUser !== true) ? rssUser : userIdFromFeed;
+      return id ? `https://www.goodreads.com/user/show/${id}` : undefined;
+    })(),
     lastSynced: new Date().toISOString().slice(0, 10)
   },
   currentlyReading: current,
