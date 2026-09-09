@@ -34,7 +34,11 @@
   <div class="floor"></div>
   <div class="rug" aria-hidden="true"></div>
 
-  <div class="frame" aria-hidden="true"><span></span></div>
+  <!-- Top five, framed on the wall -->
+  <section class="wall-of-fame" id="wall-of-fame" aria-labelledby="wof-heading">
+    <div class="wof-frames" id="wof-frames"></div>
+    <h2 class="wof-plaque" id="wof-heading">Wall of Fame</h2>
+  </section>
 
   <!-- The bookcase of past reads -->
   <section class="bookcase" id="bookcase" aria-labelledby="bookcase-label">
@@ -155,6 +159,7 @@
 </footer>
 
 <script src="data/books.js"></script>
+<script src="data/wall-of-fame.js"></script>
 <script src="assets/app.js"></script>
 </body>
 </html>

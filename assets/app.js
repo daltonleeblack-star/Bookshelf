@@ -63,6 +63,12 @@
     }
     return s;
   }
+  // Same normalisation the importer uses, so "Pachinko" finds "Pachinko (Pachinko, #1)".
+  function key(b) {
+    return (b.title || '').toLowerCase().replace(/\s*\(.*\)$/, '').trim() +
+      '|' + (b.author || '').toLowerCase().trim();
+  }
+
   function pct(book) {
     if (typeof book.progress === 'number') return Math.max(0, Math.min(100, Math.round(book.progress)));
     if (book.pagesRead && book.pages) return Math.max(0, Math.min(100, Math.round((book.pagesRead / book.pages) * 100)));
@@ -377,6 +383,59 @@
     shelvesEl.classList.add('is-scrollable');
   }
 
+  /* ---------- wall of fame ---------- */
+
+  function renderWall() {
+    var config = window.WALL_OF_FAME;
+    var wallEl = document.getElementById('wall-of-fame');
+    var framesEl = document.getElementById('wof-frames');
+    if (!config || !config.books || !config.books.length) {
+      wallEl.hidden = true;
+      return;
+    }
+    if (config.heading) document.getElementById('wof-heading').textContent = config.heading;
+
+    config.books.forEach(function (pick) {
+      // The frame shows the cover; the card behind it comes from the shelf, so the
+      // date and rating are never a second copy that can drift.
+      var shelved = (DATA.read || []).concat(DATA.currentlyReading || []).find(function (b) {
+        return key(b) === key(pick);
+      }) || pick;
+
+      var frame = el('button', 'wof');
+      frame.type = 'button';
+      frame.title = pick.title + (pick.author ? ' — ' + pick.author : '');
+      frame.setAttribute('aria-label', pick.title + (pick.author ? ' by ' + pick.author : ''));
+
+      if (pick.cover) {
+        var img = document.createElement('img');
+        img.src = pick.cover;
+        img.alt = 'Cover of ' + pick.title;
+        img.onerror = function () { img.replaceWith(platePlate(pick)); };
+        frame.appendChild(img);
+      } else {
+        frame.appendChild(platePlate(pick));
+      }
+
+      frame.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openSpine(shelved, frame);
+      });
+      framesEl.appendChild(frame);
+    });
+  }
+
+  // No image? Print the title instead, so a missing file reads as a plate, not a hole.
+  function platePlate(pick) {
+    var c = colorsFor(pick);
+    var plate = el('span', 'wof-plate');
+    plate.style.setProperty('--c1', c[0]);
+    plate.style.setProperty('--c2', c[1]);
+    plate.appendChild(el('em', null, pick.title));
+    if (pick.author) plate.appendChild(el('span', null, pick.author));
+    return plate;
+  }
+
   /* ---------- spine detail card ---------- */
 
   var card = document.getElementById('spine-card');
@@ -441,4 +500,5 @@
   });
 
   renderShelves();
+  renderWall();
 })();

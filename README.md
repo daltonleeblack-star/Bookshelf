@@ -58,6 +58,16 @@ node scripts/import-goodreads.mjs --csv ~/Downloads/goodreads_library_export.csv
 
 CSV for the facts, RSS grafted on for the covers.
 
+## Wall of Fame
+
+Five framed covers hang on the wall behind the chair. Click one and you get the same
+card a spine gives you — the date you finished it and your rating — read from
+`data/books.js`, so the wall never carries a second copy of a date that could drift.
+
+Edit the picks in `data/wall-of-fame.js`; the importer never touches that file. Each
+`cover` takes a local file under `assets/wall/` or any image URL, and a frame whose image
+fails to load falls back to a printed title plate.
+
 ## Reading progress
 
 Goodreads doesn't publish how far you are through a book in either the CSV or the RSS feed,
@@ -86,5 +96,7 @@ index.html                    the room
 assets/styles.css             the room's paint, furniture and lighting
 assets/app.js                 rendering, the stack drawer, the spine cards
 data/books.js                 your shelves (generated, safe to hand-edit)
+data/wall-of-fame.js          the five framed picks (yours, never regenerated)
+assets/wall/                  cover images for the frames
 scripts/import-goodreads.mjs  Goodreads CSV / RSS → data/books.js
 ```

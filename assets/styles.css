@@ -95,26 +95,51 @@ h1{
   pointer-events:none;mix-blend-mode:screen;
 }
 
-/* framed print over the chair */
-.frame{
-  position:absolute;left:70%;top:12%;width:12%;aspect-ratio:4/5;
-  background:linear-gradient(180deg,var(--wood-light),var(--wood-dark));
-  border-radius:2px;padding:.7cqw;
-  box-shadow:0 1cqw 2cqw rgba(0,0,0,.45);
+/* wall of fame: the top five, framed above the chair */
+.wall-of-fame{
+  position:absolute;left:50.5%;right:3%;top:8%;
+  display:flex;flex-direction:column;align-items:center;gap:1.6cqw;
 }
-.frame span{
-  display:block;height:100%;border-radius:1px;
-  background:
-    radial-gradient(80% 60% at 50% 82%, #4d6b5f, transparent 70%),
-    linear-gradient(180deg,#6b5a7a,#3f4a63 55%,#2c3b46);
-  box-shadow:inset 0 0 0 1px rgba(0,0,0,.4);
+.wof-frames{display:flex;align-items:flex-end;justify-content:center;gap:1.5cqw}
+.wof{
+  position:relative;padding:.5cqw;border:0;cursor:pointer;
+  background:linear-gradient(150deg,#b08b53,#6b4a28 55%,#8a6238);
+  border-radius:.25cqw;
+  box-shadow:0 1cqw 2cqw rgba(0,0,0,.5), inset 0 0 0 .12cqw rgba(255,235,200,.35);
+  transition:transform .18s ease, box-shadow .18s ease;
 }
-.frame span::after{
-  content:"";display:block;height:100%;
-  background:radial-gradient(closest-side at 68% 26%, rgba(255,225,170,.75), transparent 62%);
+.wof::after{ /* glass */
+  content:"";position:absolute;inset:.5cqw;pointer-events:none;
+  background:linear-gradient(122deg,rgba(255,255,255,.2) 4%,transparent 26%,transparent 72%,rgba(255,255,255,.08) 92%);
+}
+.wof img,.wof-plate{display:block;height:11.5cqw;width:auto;border-radius:.05cqw}
+.wof-plate{
+  width:7.6cqw;padding:.7cqw;
+  background:linear-gradient(155deg,var(--c1),var(--c2));
+  display:flex;flex-direction:column;justify-content:center;gap:.5cqw;text-align:center;
+}
+.wof-plate em{font-family:Fraunces,Georgia,serif;font-style:normal;font-weight:600;
+  font-size:1.1cqw;line-height:1.2;color:#fff8ec}
+.wof-plate span{font-size:.85cqw;color:rgba(255,248,236,.7)}
+.wof:hover,.wof:focus-visible{
+  transform:translateY(-.7cqw);
+  box-shadow:0 1.8cqw 3cqw rgba(0,0,0,.55), inset 0 0 0 .12cqw rgba(255,235,200,.6);
+  outline:none;
+}
+.wof.is-open{transform:translateY(-.7cqw)}
+
+/* engraved brass plate under the frames */
+.wof-plaque{
+  margin:0;padding:.5cqw 1.8cqw;
+  background:linear-gradient(180deg,#c8a86a,#8a6c34);
+  border-radius:.2cqw;
+  box-shadow:0 .4cqw .9cqw rgba(0,0,0,.45), inset 0 .1cqw 0 rgba(255,240,200,.6);
+  font-family:Fraunces,Georgia,serif;font-weight:600;
+  font-size:1.35cqw;letter-spacing:.22em;text-transform:uppercase;
+  color:#3a2a12;text-shadow:0 1px 0 rgba(255,240,200,.45);
 }
 
-/* ---------- bookcase ---------- */
+/* ---------- bookcase ---------- *//* ---------- bookcase ---------- */
 .bookcase{
   position:absolute;left:3%;bottom:9%;width:45%;
   background:linear-gradient(180deg,var(--wood-light),var(--wood) 18%,var(--wood-dark));
@@ -347,9 +372,16 @@ h1{
 /* ---------- small screens: stack the scene readably ---------- */
 @media (max-width:760px){
   .room{aspect-ratio:4/7;--unit:2.3cqw;--max-shelves:6}
-  .bookcase{left:4%;right:4%;width:auto;bottom:26%;padding:6cqw 2cqw 4cqw}
+  .bookcase{left:4%;right:4%;width:auto;bottom:38%;padding:6cqw 2cqw 4cqw}
+  .wall-of-fame{left:4%;right:4%;top:auto;bottom:27%;gap:2.4cqw}
+  .wof-frames{gap:2cqw}
+  .wof img,.wof-plate{height:15cqw}
+  .wof-plate{width:10cqw}
+  .wof-plate em{font-size:1.6cqw}.wof-plate span{font-size:1.3cqw}
+  .wof{padding:.8cqw;border-radius:.4cqw}
+  .wof-plaque{font-size:2.4cqw;padding:.8cqw 2.4cqw}
   .bookcase-label{font-size:3.2cqw}.bookcase-hint{font-size:2.5cqw}
-  .frame{display:none}
+
   .shelf{border-bottom-width:1.4cqw}
   .chair{left:3%;width:46%;bottom:3%}
   .side-table{right:3%;width:34%;height:24%}
