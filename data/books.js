@@ -14,7 +14,8 @@ window.BOOKSHELF_DATA = {
       "author": "Michael Crichton",
       "pages": 448,
       "startedAt": "2026-08-30",
-      "coverUrl": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1386864575l/8650.jpg"
+      "coverUrl": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1386864575l/8650.jpg",
+      "pagesRead": 191
     }
   ],
   "read": [
