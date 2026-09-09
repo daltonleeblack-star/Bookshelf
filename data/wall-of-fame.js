@@ -14,8 +14,7 @@ window.WALL_OF_FAME = {
       title: "Demon Copperhead",
       author: "Barbara Kingsolver",
       covers: [
-        "assets/wall/demon-copperhead.jpg",
-        "assets/wall/demon-copperhead.png",
+        "assets/wall/demon%20copperhead.jpg",
         "https://covers.openlibrary.org/b/isbn/9780063251922-L.jpg?default=false"
       ]
     },
@@ -24,7 +23,6 @@ window.WALL_OF_FAME = {
       author: "Min Jin Lee",
       covers: [
         "assets/wall/pachinko.jpg",
-        "assets/wall/pachinko.png",
         "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1766879949l/34051011._SY475_.jpg"
       ]
     },
@@ -32,8 +30,7 @@ window.WALL_OF_FAME = {
       title: "The Great Believers",
       author: "Rebecca Makkai",
       covers: [
-        "assets/wall/the-great-believers.jpg",
-        "assets/wall/the-great-believers.png",
+        "assets/wall/greatbelievers.jpg",
         "https://covers.openlibrary.org/b/isbn/9780735223530-L.jpg?default=false"
       ]
     },
@@ -41,8 +38,7 @@ window.WALL_OF_FAME = {
       title: "The Kite Runner",
       author: "Khaled Hosseini",
       covers: [
-        "assets/wall/the-kite-runner.jpg",
-        "assets/wall/the-kite-runner.png",
+        "assets/wall/kiterunner.jpg",
         "https://covers.openlibrary.org/b/isbn/9781594631931-L.jpg?default=false"
       ]
     },
@@ -50,8 +46,7 @@ window.WALL_OF_FAME = {
       title: "A Little Life",
       author: "Hanya Yanagihara",
       covers: [
-        "assets/wall/a-little-life.jpg",
-        "assets/wall/a-little-life.png",
+        "assets/wall/alittlelife.jpg",
         "https://covers.openlibrary.org/b/isbn/9780385539258-L.jpg?default=false"
       ]
     }
