@@ -11,7 +11,9 @@ window.WALL_OF_FAME = {
     {
       title: "Demon Copperhead",
       author: "Barbara Kingsolver",
-      cover: "assets/wall/demon-copperhead.jpg"
+      // Best guess at the US hardcover; drop the Filia edition into assets/wall/
+      // and point here instead. A wrong ISBN just falls back to a title plate.
+      cover: "https://covers.openlibrary.org/b/isbn/9780063251922-L.jpg?default=false"
     },
     {
       title: "Pachinko",
@@ -21,17 +23,17 @@ window.WALL_OF_FAME = {
     {
       title: "The Great Believers",
       author: "Rebecca Makkai",
-      cover: "https://covers.openlibrary.org/b/isbn/9780735223530-L.jpg"
+      cover: "https://covers.openlibrary.org/b/isbn/9780735223530-L.jpg?default=false"
     },
     {
       title: "The Kite Runner",
       author: "Khaled Hosseini",
-      cover: "https://covers.openlibrary.org/b/isbn/9781594631931-L.jpg"
+      cover: "https://covers.openlibrary.org/b/isbn/9781594631931-L.jpg?default=false"
     },
     {
       title: "A Little Life",
       author: "Hanya Yanagihara",
-      cover: "https://covers.openlibrary.org/b/isbn/9780385539258-L.jpg"
+      cover: "https://covers.openlibrary.org/b/isbn/9780385539258-L.jpg?default=false"
     }
   ]
 };
