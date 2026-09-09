@@ -35,6 +35,21 @@ node scripts/import-goodreads.mjs --rss 108508812
 Reads your `currently-reading` and `read` shelves straight off Goodreads. This is the only
 source that carries **cover art**, but it returns roughly the most recent 100 books per shelf.
 
+### Option C — saved feeds (when the machine running the import can't reach Goodreads)
+
+Open the shelf feeds in a browser, save each page, then point the importer at the files:
+
+```
+https://www.goodreads.com/review/list_rss/108508812?shelf=read&sort=date_read&order=d
+https://www.goodreads.com/review/list_rss/108508812?shelf=currently-reading
+```
+
+```sh
+node scripts/import-goodreads.mjs --rss-file read.xml --rss-file currently-reading.xml
+```
+
+A saved shelf is treated as *currently reading* when none of its items carry a read date.
+
 ### Best of both
 
 ```sh

@@ -5,6 +5,7 @@
  *   node scripts/import-goodreads.mjs --csv goodreads_library_export.csv
  *   node scripts/import-goodreads.mjs --rss 108508812
  *   node scripts/import-goodreads.mjs --csv export.csv --rss 108508812   # CSV for facts, RSS for covers
+ *   node scripts/import-goodreads.mjs --rss-file read.xml                # from saved feeds, offline
  *
  * The CSV export (Goodreads → My Books → Import/Export → Export Library) is the
  * complete, reliable source. The RSS feed needs no login but caps out around 100
@@ -28,16 +29,29 @@ function flag(name) {
   const i = args.indexOf(name);
   return i === -1 ? null : (args[i + 1] && !args[i + 1].startsWith('--') ? args[i + 1] : true);
 }
+function flagAll(name) {
+  var out = [];
+  args.forEach(function (a, i) {
+    if (a === name && args[i + 1] && !args[i + 1].startsWith('--')) out.push(args[i + 1]);
+  });
+  return out;
+}
 const csvPath = flag('--csv');
+const rssFiles = flagAll('--rss-file');
 const rssUser = flag('--rss');
 const outPath = typeof flag('--out') === 'string' ? path.resolve(flag('--out')) : OUT;
 
-if (!csvPath && !rssUser) {
+if (!csvPath && !rssUser && !rssFiles.length) {
   console.error(`Usage:
   node scripts/import-goodreads.mjs --csv goodreads_library_export.csv
   node scripts/import-goodreads.mjs --rss <goodreads-user-id>
+  node scripts/import-goodreads.mjs --rss-file read.xml --rss-file current.xml
 
-Get the CSV at https://www.goodreads.com/review/import (Export Library).`);
+Get the CSV at https://www.goodreads.com/review/import (Export Library).
+--rss-file reads shelf RSS you already saved, for when this machine can't
+reach goodreads.com. Shelf feeds live at:
+  https://www.goodreads.com/review/list_rss/<user-id>?shelf=read&sort=date_read&order=d
+  https://www.goodreads.com/review/list_rss/<user-id>?shelf=currently-reading`);
   process.exit(1);
 }
 
@@ -149,12 +163,25 @@ if (csvPath && csvPath !== true) {
   console.log(`CSV: ${read.length} read, ${current.length} currently reading.`);
 }
 
-if (rssUser && rssUser !== true) {
-  const [rssCurrent, rssRead] = await Promise.all([
-    fetchShelfRss(rssUser, 'currently-reading'),
-    fetchShelfRss(rssUser, 'read')
-  ]);
-  console.log(`RSS: ${rssRead.length} read, ${rssCurrent.length} currently reading.`);
+if (rssUser && rssUser !== true || rssFiles.length) {
+  let rssCurrent = [], rssRead = [];
+
+  if (rssFiles.length) {
+    // Saved feeds: a shelf is "currently reading" if nothing in it has a read date.
+    for (const f of rssFiles) {
+      const items = parseRss(fs.readFileSync(path.resolve(f), 'utf8'));
+      if (items.some((b) => b.dateRead)) rssRead = rssRead.concat(items);
+      else rssCurrent = rssCurrent.concat(items);
+    }
+    console.log(`RSS files: ${rssRead.length} read, ${rssCurrent.length} currently reading.`);
+  } else {
+    [rssCurrent, rssRead] = await Promise.all([
+      fetchShelfRss(rssUser, 'currently-reading'),
+      fetchShelfRss(rssUser, 'read')
+    ]);
+    console.log(`RSS: ${rssRead.length} read, ${rssCurrent.length} currently reading.`);
+  }
+
   if (!current.length) current = rssCurrent.map((b) => { const c = { ...b }; delete c.dateRead; delete c.rating; return c; });
   if (!read.length) read = rssRead;
   // RSS is the only source of cover art — graft it onto whatever we already have.
